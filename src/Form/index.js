@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import InputGroup from '../InputGroup';
+import Button from '../Button';
+import Section from '../Section';
+import Alert from '../Alert';
 
 function Form() {
 	const [backgroundColor, setBackgroundColor] = useState('');
-	const [foregroundColor, setForegroundColor] = useState('');
-	const [errors, setErrors] = useState({ background: '', foreground: '' });
+	const [foregroundColors, setForegroundColors] = useState(['']);
+	const [errors, setErrors] = useState({ background: '', foreground: [] });
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [response, setResponse] = useState(null);
 
@@ -36,18 +39,36 @@ function Form() {
 		}
 	};
 
-	const handleForegroundChange = e => {
+	const handleForegroundChange = (index, e) => {
 		const value = e.target.value;
-		setForegroundColor(value);
+		const newForegroundColors = [...foregroundColors];
+		newForegroundColors[index] = value;
+		setForegroundColors(newForegroundColors);
 
-		// Clear error when user starts typing
-		if (errors.foreground) {
-			setErrors(prev => ({ ...prev, foreground: '' }));
+		// Clear error for this specific input
+		if (errors.foreground[index]) {
+			const newErrors = [...errors.foreground];
+			newErrors[index] = '';
+			setErrors(prev => ({ ...prev, foreground: newErrors }));
 		}
-
-		// Clear response when input changes
 		if (response) {
 			setResponse(null);
+		}
+	};
+
+	const addForegroundColor = () => {
+		setForegroundColors([...foregroundColors, '']);
+		setErrors(prev => ({ ...prev, foreground: [...prev.foreground, ''] }));
+	};
+
+	const removeForegroundColor = index => {
+		if (foregroundColors.length > 1) {
+			const newForegroundColors = foregroundColors.filter(
+				(_, i) => i !== index
+			);
+			const newErrors = errors.foreground.filter((_, i) => i !== index);
+			setForegroundColors(newForegroundColors);
+			setErrors(prev => ({ ...prev, foreground: newErrors }));
 		}
 	};
 
@@ -55,36 +76,55 @@ function Form() {
 		e.preventDefault();
 
 		// Reset errors
-		const newErrors = { background: '', foreground: '' };
+		const newErrors = { background: '', foreground: [] };
 
 		// Validate background color
 		if (!backgroundColor.trim()) {
-			newErrors.background = 'Please enter a background color';
+			newErrors.background = 'Please enter a valid hex color!';
 		} else if (!isValidHexColor(backgroundColor)) {
-			newErrors.background =
-				'Please enter a valid hex color (e.g., #FF0000, #f00, FF0000, or f00)';
+			newErrors.background = 'Please enter a valid hex color!';
 		}
 
-		// Validate foreground color
-		if (!foregroundColor.trim()) {
-			newErrors.foreground = 'Please enter a foreground color';
-		} else if (!isValidHexColor(foregroundColor)) {
-			newErrors.foreground =
-				'Please enter a valid hex color (e.g., #FF0000, #f00, FF0000, or f00)';
+		// Validate foreground colors
+		const foregroundErrors = [];
+		let hasValidForeground = false;
+
+		foregroundColors.forEach((color, index) => {
+			if (!color.trim()) {
+				foregroundErrors[index] = 'Please enter a valid hex color!';
+			} else if (!isValidHexColor(color)) {
+				foregroundErrors[index] = 'Please enter a valid hex color!';
+			} else {
+				foregroundErrors[index] = '';
+				hasValidForeground = true;
+			}
+		});
+
+		if (!hasValidForeground) {
+			// If no valid foreground colors, mark first one as required
+			if (foregroundErrors.length === 0 || !foregroundErrors[0]) {
+				foregroundErrors[0] = 'Please enter a valid hex color!';
+			}
 		}
+
+		newErrors.foreground = foregroundErrors;
 
 		// Check if there are any errors
-		if (newErrors.background || newErrors.foreground) {
+		const hasErrors =
+			newErrors.background || foregroundErrors.some(error => error);
+		if (hasErrors) {
 			setErrors(newErrors);
 			return;
 		}
 
 		setIsSubmitting(true);
-		setErrors({ background: '', foreground: '' });
+		setErrors({ background: '', foreground: [] });
 
 		try {
 			const normalizedBackground = normalizeHexValue(backgroundColor);
-			const normalizedForeground = normalizeHexValue(foregroundColor);
+			const normalizedForegroundColors = foregroundColors
+				.filter(color => color.trim())
+				.map(color => normalizeHexValue(color));
 
 			// Send to your Flask backend using the API documentation format
 			const response = await fetch('http://127.0.0.1:5000/api/colors/', {
@@ -94,7 +134,10 @@ function Form() {
 				},
 				body: JSON.stringify({
 					backgroundColor: normalizedBackground,
-					foregroundColor: normalizedForeground,
+					foregroundColor:
+						normalizedForegroundColors.length === 1
+							? normalizedForegroundColors[0]
+							: normalizedForegroundColors,
 				}),
 			});
 
@@ -107,7 +150,9 @@ function Form() {
 		} catch (error) {
 			setErrors({
 				background: '',
-				foreground: `Failed to send colors to backend: ${error.message}`,
+				foreground: [
+					`Failed to send colors to backend: ${error.message}`,
+				],
 			});
 			console.error('Submit error:', error);
 		} finally {
@@ -116,54 +161,74 @@ function Form() {
 	};
 
 	return (
-		<div>
+		<>
 			<form onSubmit={handleSubmit}>
-				<InputGroup
-					id="backgroundInput"
-					label="Background Color"
-					value={backgroundColor}
-					onChange={handleBackgroundChange}
-					error={errors.background}
-					placeholder="e.g., #FFFFFF or ffffff"
-				/>
+				{/* Background Color Section */}
+				<Section
+					title="Background Color"
+					validationError={errors.background}
+				>
+					<InputGroup
+						id="backgroundInput"
+						value={backgroundColor}
+						onChange={handleBackgroundChange}
+						hasError={!!errors.background}
+						placeholder="e.g., #FFFFFF or ffffff"
+					/>
+				</Section>
 
-				<InputGroup
-					id="foregroundInput"
-					label="Foreground Color"
-					value={foregroundColor}
-					onChange={handleForegroundChange}
-					error={errors.foreground}
-					placeholder="e.g., #000000 or 000000"
-				/>
+				{/* Foreground Colors Section */}
+				<Section
+					title="Foreground Colors"
+					showButton={true}
+					buttonText="+"
+					onButtonClick={addForegroundColor}
+					validationError={
+						errors.foreground.some(error => error)
+							? 'Please enter a valid hex color!'
+							: ''
+					}
+				>
+					{foregroundColors.map((color, index) => (
+						<InputGroup
+							key={index}
+							id={`foregroundInput-${index}`}
+							value={color}
+							onChange={e => handleForegroundChange(index, e)}
+							hasError={!!errors.foreground[index]}
+							placeholder="e.g., #000000 or 000000"
+							showRemoveButton={foregroundColors.length > 1}
+							onRemove={() => removeForegroundColor(index)}
+						/>
+					))}
+				</Section>
 
 				{/* Submit Button */}
-				<button type="submit" disabled={isSubmitting}>
-					{isSubmitting ? 'Sending...' : 'Get Transparent Colors'}
-				</button>
+				<Button type="submit" disabled={isSubmitting}>
+					{isSubmitting ? 'Sending...' : 'Create Transparent Colors'}
+				</Button>
 			</form>
 
 			{/* Success Response */}
 			{response && (
-				<div style={{ color: 'green', marginTop: '15px' }}>
-					<strong>✅ Success!</strong>
+				<Section title="Results">
+					<Alert variant="success">Success!</Alert>
 					{response.status === 'success' && response.results && (
-						<div style={{ marginTop: '10px' }}>
+						<div>
 							<p>Transparent Colors:</p>
-							{response.results.map((result, index) => (
-								<div
-									key={index}
-									style={{ marginBottom: '5px' }}
-								>
-									<span style={{ fontFamily: 'monospace' }}>
-										{result.originalHex} → {result.rgba}
-									</span>
-								</div>
-							))}
+							<pre>
+								{response.results
+									.map(
+										(result, index) =>
+											`${result.originalHex} → ${result.rgba}`
+									)
+									.join('\n')}
+							</pre>
 						</div>
 					)}
-				</div>
+				</Section>
 			)}
-		</div>
+		</>
 	);
 }
 

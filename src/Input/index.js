@@ -1,19 +1,14 @@
 import React from 'react';
 
-function Input({ id, value, onChange, error, placeholder }) {
+function Input({ id, value, onChange, placeholder }) {
 	return (
-		<>
-			<input
-				id={id}
-				type="text"
-				value={value}
-				onChange={onChange}
-				placeholder={placeholder}
-			/>
-			{error && (
-				<div style={{ color: 'red', marginTop: '5px' }}>{error}</div>
-			)}
-		</>
+		<input
+			id={id}
+			type="text"
+			value={value}
+			onChange={onChange}
+			placeholder={placeholder}
+		/>
 	);
 }
 
