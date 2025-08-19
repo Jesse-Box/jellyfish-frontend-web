@@ -162,6 +162,13 @@ function Form() {
 
 	return (
 		<>
+			<button
+				onClick={() => {
+					throw new Error('Test Sentry error!');
+				}}
+			>
+				Test Sentry
+			</button>
 			<form onSubmit={handleSubmit}>
 				{/* Background Color Section */}
 				<Section
