@@ -164,10 +164,10 @@ function Form() {
 		<>
 			<button
 				onClick={() => {
-					throw new Error('Test Sentry error!');
+					throw new Error('This is your first error!');
 				}}
 			>
-				Test Sentry
+				Break the world
 			</button>
 			<form onSubmit={handleSubmit}>
 				{/* Background Color Section */}
