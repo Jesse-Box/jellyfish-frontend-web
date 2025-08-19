@@ -5,7 +5,7 @@ import Form from './Form';
 function App() {
 	return (
 		<>
-			<h1>Durchsichtig Frontend</h1>
+			<h1>Jellyfish Frontend</h1>
 			<Form />
 		</>
 	);

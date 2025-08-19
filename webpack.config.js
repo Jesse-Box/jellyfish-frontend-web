@@ -35,7 +35,7 @@ module.exports = {
 		sentryWebpackPlugin({
 			authToken: process.env.SENTRY_AUTH_TOKEN,
 			org: 'jesse-box',
-			project: 'durchsichtig-frontend-web',
+			project: 'jellyfish-frontend-web',
 		}),
 	],
 
