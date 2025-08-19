@@ -1,13 +1,17 @@
+const { sentryWebpackPlugin } = require('@sentry/webpack-plugin');
+
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	entry: './src/index.js',
+
 	output: {
 		path: path.resolve(__dirname, 'dist'),
 		filename: 'bundle.js',
 		clean: true,
 	},
+
 	module: {
 		rules: [
 			{
@@ -23,11 +27,18 @@ module.exports = {
 			},
 		],
 	},
+
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: './public/index.html',
 		}),
+		sentryWebpackPlugin({
+			authToken: process.env.SENTRY_AUTH_TOKEN,
+			org: 'jesse-box',
+			project: 'durchsichtig-frontend-web',
+		}),
 	],
+
 	devServer: {
 		static: {
 			directory: path.join(__dirname, 'dist'),
@@ -37,7 +48,10 @@ module.exports = {
 		open: true,
 		hot: true,
 	},
+
 	resolve: {
 		extensions: ['.js', '.jsx'],
 	},
+
+	devtool: 'source-map',
 };

@@ -93,3 +93,6 @@ dist
 # Temporary folders
 tmp/
 temp/
+
+# Sentry Config File
+.env.sentry-build-plugin
