@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import InputGroup from '../InputGroup';
-import Button from '../Button';
-import Section from '../Section';
-import Alert from '../Alert';
+import InputGroup from '../InputGroup/index.jsx';
+import { Button } from '../Button/index.jsx';
+import Section from '../Section/index.jsx';
 
-function Form() {
+function Form({ onSubmit }) {
 	const [backgroundColor, setBackgroundColor] = useState('');
 	const [foregroundColors, setForegroundColors] = useState(['']);
 	const [errors, setErrors] = useState({ background: '', foreground: [] });
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [response, setResponse] = useState(null);
 
 	// Validate hex color format
 	const isValidHexColor = value => {
@@ -33,10 +31,7 @@ function Form() {
 			setErrors(prev => ({ ...prev, background: '' }));
 		}
 
-		// Clear response when input changes
-		if (response) {
-			setResponse(null);
-		}
+		// Response is now handled by parent App component
 	};
 
 	const handleForegroundChange = (index, e) => {
@@ -51,9 +46,7 @@ function Form() {
 			newErrors[index] = '';
 			setErrors(prev => ({ ...prev, foreground: newErrors }));
 		}
-		if (response) {
-			setResponse(null);
-		}
+		// Response is now handled by parent App component
 	};
 
 	const addForegroundColor = () => {
@@ -126,116 +119,75 @@ function Form() {
 				.filter(color => color.trim())
 				.map(color => normalizeHexValue(color));
 
-			// Send to your Flask backend using the API documentation format
-			const response = await fetch('http://127.0.0.1:5000/api/colors/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					backgroundColor: normalizedBackground,
-					foregroundColor:
-						normalizedForegroundColors.length === 1
-							? normalizedForegroundColors[0]
-							: normalizedForegroundColors,
-				}),
+			const result = await onSubmit({
+				backgroundColor: normalizedBackground,
+				foregroundColors: normalizedForegroundColors,
 			});
 
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+			if (!result.success) {
+				setErrors({
+					background: '',
+					foreground: [result.error],
+				});
 			}
-
-			const data = await response.json();
-			setResponse(data);
 		} catch (error) {
 			setErrors({
 				background: '',
-				foreground: [
-					`Failed to send colors to backend: ${error.message}`,
-				],
+				foreground: [`Submission failed: ${error.message}`],
 			});
-			console.error('Submit error:', error);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
 	return (
-		<>
-			<button
-				onClick={() => {
-					throw new Error('This is your first error!');
-				}}
+		<form onSubmit={handleSubmit} className="flex flex-col gap-2">
+			{/* Background Color Section */}
+			<Section
+				title="Background Color"
+				validationError={errors.background}
 			>
-				Break the world
-			</button>
-			<form onSubmit={handleSubmit}>
-				{/* Background Color Section */}
-				<Section
-					title="Background Color"
-					validationError={errors.background}
-				>
+				<InputGroup
+					id="backgroundInput"
+					value={backgroundColor}
+					onChange={handleBackgroundChange}
+					hasError={!!errors.background}
+					placeholder="e.g., #FFFFFF or ffffff"
+				/>
+			</Section>
+
+			{/* Foreground Colors Section */}
+			<Section
+				title="Foreground Colors"
+				showButton={true}
+				onButtonClick={addForegroundColor}
+				validationError={
+					errors.foreground.some(error => error)
+						? 'Please enter a valid hex color!'
+						: ''
+				}
+			>
+				{foregroundColors.map((color, index) => (
 					<InputGroup
-						id="backgroundInput"
-						value={backgroundColor}
-						onChange={handleBackgroundChange}
-						hasError={!!errors.background}
-						placeholder="e.g., #FFFFFF or ffffff"
+						key={index}
+						id={`foregroundInput-${index}`}
+						value={color}
+						onChange={e => handleForegroundChange(index, e)}
+						hasError={!!errors.foreground[index]}
+						placeholder="e.g., #000000 or 000000"
+						showRemoveButton={foregroundColors.length > 1}
+						onRemove={() => removeForegroundColor(index)}
 					/>
-				</Section>
+				))}
+			</Section>
 
-				{/* Foreground Colors Section */}
-				<Section
-					title="Foreground Colors"
-					showButton={true}
-					buttonText="+"
-					onButtonClick={addForegroundColor}
-					validationError={
-						errors.foreground.some(error => error)
-							? 'Please enter a valid hex color!'
-							: ''
-					}
-				>
-					{foregroundColors.map((color, index) => (
-						<InputGroup
-							key={index}
-							id={`foregroundInput-${index}`}
-							value={color}
-							onChange={e => handleForegroundChange(index, e)}
-							hasError={!!errors.foreground[index]}
-							placeholder="e.g., #000000 or 000000"
-							showRemoveButton={foregroundColors.length > 1}
-							onRemove={() => removeForegroundColor(index)}
-						/>
-					))}
-				</Section>
-
-				{/* Submit Button */}
-				<Button type="submit" disabled={isSubmitting}>
+			{/* Submit Button */}
+			<div className="flex">
+				<Button type="submit" disabled={isSubmitting} fullWidth>
 					{isSubmitting ? 'Sending...' : 'Create Transparent Colors'}
 				</Button>
-			</form>
-
-			{/* Success Response */}
-			{response && (
-				<Section title="Results">
-					<Alert variant="success">Success!</Alert>
-					{response.status === 'success' && response.results && (
-						<div>
-							<p>Transparent Colors:</p>
-							<pre>
-								{response.results
-									.map(
-										(result, index) =>
-											`${result.originalHex} → ${result.rgba}`
-									)
-									.join('\n')}
-							</pre>
-						</div>
-					)}
-				</Section>
-			)}
-		</>
+			</div>
+		</form>
 	);
 }
 

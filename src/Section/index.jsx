@@ -1,22 +1,19 @@
 import React from 'react';
-import SectionHeader from '../SectionHeader';
-import SectionBody from '../SectionBody';
-import './style.css';
+import SectionHeader from './header.jsx';
+import SectionBody from './body.jsx';
 
 function Section({
 	title,
 	showButton = false,
-	buttonText,
 	onButtonClick,
 	validationError,
 	children,
 }) {
 	return (
-		<section className="section">
+		<section className="flex flex-col gap-2">
 			<SectionHeader
 				title={title}
 				showButton={showButton}
-				buttonText={buttonText}
 				onButtonClick={onButtonClick}
 			/>
 			<SectionBody validationError={validationError}>
