@@ -1,6 +1,6 @@
 import React from 'react';
-import SectionHeader from '../SectionHeader/index.jsx';
-import SectionBody from '../SectionBody/index.jsx';
+import SectionHeader from './header.jsx';
+import SectionBody from './body.jsx';
 
 function Section({
 	title,
