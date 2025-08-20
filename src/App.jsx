@@ -4,12 +4,15 @@ import Form from './Form/index.jsx';
 
 function App() {
 	return (
-		<div className="min-h-screen bg-gray-100 py-8">
-			<div className="max-w-4xl mx-auto px-4">
-				<h1 className="text-4xl font-bold text-blue-600 text-center mb-8">
-					Jellyfish Frontend
-				</h1>
-				<div className="bg-white rounded-lg shadow-lg p-6">
+		<div>
+			<div>
+				<header className="px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+					<h1 className="text-2xl font-bold text-left">Jellyfish</h1>
+					<span className="text-sm text-gray-600 font-medium">
+						110% vibe coded
+					</span>
+				</header>
+				<div>
 					<Form />
 				</div>
 			</div>

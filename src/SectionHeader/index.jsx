@@ -1,20 +1,18 @@
 import React from 'react';
-import Button from '../Button/index.jsx';
-import './style.css';
+import { IconButton } from '../Button/index.jsx';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
-function SectionHeader({
-	title,
-	showButton = false,
-	buttonText,
-	onButtonClick,
-}) {
+function SectionHeader({ title, showButton = false, onButtonClick }) {
 	return (
-		<div className="section-header">
-			<h2>{title}</h2>
+		<div className="flex items-center justify-between">
+			<h2 className="text-sm font-bold">{title}</h2>
 			{showButton && (
-				<Button type="button" onClick={onButtonClick}>
-					{buttonText}
-				</Button>
+				<IconButton
+					variant="secondary"
+					icon={PlusIcon}
+					onClick={onButtonClick}
+					aria-label="Add item"
+				/>
 			)}
 		</div>
 	);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import InputGroup from '../InputGroup/index.jsx';
-import Button from '../Button/index.jsx';
+import { Button } from '../Button/index.jsx';
 import Section from '../Section/index.jsx';
 import Alert from '../Alert/index.jsx';
 
@@ -161,81 +161,164 @@ function Form() {
 	};
 
 	return (
-		<>
-			<button
-				onClick={() => {
-					throw new Error('This is your first error!');
-				}}
-			>
-				Break the world
-			</button>
-			<form onSubmit={handleSubmit}>
-				{/* Background Color Section */}
-				<Section
-					title="Background Color"
-					validationError={errors.background}
-				>
-					<InputGroup
-						id="backgroundInput"
-						value={backgroundColor}
-						onChange={handleBackgroundChange}
-						hasError={!!errors.background}
-						placeholder="e.g., #FFFFFF or ffffff"
-					/>
-				</Section>
-
-				{/* Foreground Colors Section */}
-				<Section
-					title="Foreground Colors"
-					showButton={true}
-					buttonText="+"
-					onButtonClick={addForegroundColor}
-					validationError={
-						errors.foreground.some(error => error)
-							? 'Please enter a valid hex color!'
-							: ''
-					}
-				>
-					{foregroundColors.map((color, index) => (
+		<div className="flex flex-col lg:flex-row lg:h-screen gap-4 p-6">
+			{/* Form Sidebar */}
+			<div className="lg:w-80 lg:flex-shrink-0 lg:overflow-y-auto">
+				<form onSubmit={handleSubmit} className="flex flex-col gap-2">
+					{/* Background Color Section */}
+					<Section
+						title="Background Color"
+						validationError={errors.background}
+					>
 						<InputGroup
-							key={index}
-							id={`foregroundInput-${index}`}
-							value={color}
-							onChange={e => handleForegroundChange(index, e)}
-							hasError={!!errors.foreground[index]}
-							placeholder="e.g., #000000 or 000000"
-							showRemoveButton={foregroundColors.length > 1}
-							onRemove={() => removeForegroundColor(index)}
+							id="backgroundInput"
+							value={backgroundColor}
+							onChange={handleBackgroundChange}
+							hasError={!!errors.background}
+							placeholder="e.g., #FFFFFF or ffffff"
 						/>
-					))}
-				</Section>
+					</Section>
 
-				{/* Submit Button */}
-				<Button type="submit" disabled={isSubmitting}>
-					{isSubmitting ? 'Sending...' : 'Create Transparent Colors'}
-				</Button>
-			</form>
+					{/* Foreground Colors Section */}
+					<Section
+						title="Foreground Colors"
+						showButton={true}
+						onButtonClick={addForegroundColor}
+						validationError={
+							errors.foreground.some(error => error)
+								? 'Please enter a valid hex color!'
+								: ''
+						}
+					>
+						{foregroundColors.map((color, index) => (
+							<InputGroup
+								key={index}
+								id={`foregroundInput-${index}`}
+								value={color}
+								onChange={e => handleForegroundChange(index, e)}
+								hasError={!!errors.foreground[index]}
+								placeholder="e.g., #000000 or 000000"
+								showRemoveButton={foregroundColors.length > 1}
+								onRemove={() => removeForegroundColor(index)}
+							/>
+						))}
+					</Section>
 
-			{/* Success Response */}
-			{response && (
-				<Section title="Results">
-					<Alert variant="success">Success!</Alert>
-					{response.status === 'success' && response.results && (
-						<div>
-							<p>Transparent Colors:</p>
-							<pre>
-								{response.results
-									.map(
-										(result, index) =>
-											`${result.originalHex} → ${result.rgba}`
-									)
-									.join('\n')}
-							</pre>
+					{/* Submit Button */}
+					<div className="flex">
+						<Button type="submit" disabled={isSubmitting} fullWidth>
+							{isSubmitting
+								? 'Sending...'
+								: 'Create Transparent Colors'}
+						</Button>
+					</div>
+				</form>
+			</div>
+
+			{/* Results Panel */}
+			<div className="lg:flex-1 lg:overflow-y-auto">
+				{response &&
+				response.status === 'success' &&
+				response.results ? (
+					<div className="lg:h-full">
+						<Section title="Color Results">
+							<Alert variant="success">
+								Colors generated successfully!
+							</Alert>
+
+							{/* Visual Color Preview */}
+							<div
+								className="rounded-lg border-2 border-gray-200 lg:h-full lg:flex lg:items-center p-3"
+								style={{
+									backgroundColor:
+										response.backgroundColor ||
+										backgroundColor,
+								}}
+							>
+								<div className="w-full">
+									{/* Color Grid - Original vs Transparent */}
+									<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+										{response.results.map(
+											(result, index) => (
+												<div
+													key={index}
+													className="flex flex-col"
+												>
+													{/* Paired Swatches - No gap between original and transparent */}
+													<div className="flex flex-col border border-white/20 rounded-md overflow-hidden">
+														{/* Original Color */}
+														<div
+															className="w-full h-16 lg:h-20 relative flex items-center justify-center"
+															style={{
+																backgroundColor:
+																	result.originalHex,
+															}}
+															title={`Original: ${result.originalHex}`}
+														>
+															<span className="text-xs font-bold text-white drop-shadow-lg px-1 text-center leading-tight">
+																{
+																	result.originalHex
+																}
+															</span>
+														</div>
+														{/* Transparent Color - No gap */}
+														<div
+															className="w-full h-16 lg:h-20 relative flex items-center justify-center"
+															style={{
+																backgroundColor:
+																	result.rgba,
+															}}
+															title={`Transparent: ${result.rgba}`}
+														>
+															<span className="text-xs font-bold text-white drop-shadow-lg px-1 text-center leading-tight">
+																{result.rgba}
+															</span>
+														</div>
+													</div>
+												</div>
+											)
+										)}
+									</div>
+								</div>
+							</div>
+						</Section>
+					</div>
+				) : (
+					<Section title="Color Results">
+						<div className="rounded-lg border-1 border-gray-300 lg:h-full lg:flex lg:items-center bg-gray-50">
+							<div className="w-full flex items-center justify-center">
+								<div className="text-center max-w-md mx-auto p-8">
+									<div className="mb-6">
+										<div className="w-24 h-24 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-4 p-3">
+											<div className="grid grid-cols-3 gap-1 w-full h-full">
+												<div className="bg-red-400 rounded-sm"></div>
+												<div className="bg-blue-500 rounded-sm"></div>
+												<div className="bg-green-500 rounded-sm"></div>
+												<div className="bg-yellow-400 rounded-sm"></div>
+												<div className="bg-purple-500 rounded-sm"></div>
+												<div className="bg-pink-400 rounded-sm"></div>
+												<div className="bg-indigo-500 rounded-sm"></div>
+												<div className="bg-teal-400 rounded-sm"></div>
+												<div className="bg-orange-400 rounded-sm"></div>
+											</div>
+										</div>
+									</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">
+										No colors generated yet
+									</h3>
+									<p className="text-gray-600 text-sm leading-relaxed mb-6">
+										Enter a background color and at least
+										one foreground color, then click "Create
+										Transparent Colors" to see your color
+										palette with transparency applied.
+									</p>
+								</div>
+							</div>
 						</div>
-					)}
-				</Section>
-			)}
-		</>
+					</Section>
+				)}
+			</div>
+		</div>
 	);
 }
 
