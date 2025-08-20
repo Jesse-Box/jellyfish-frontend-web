@@ -4,10 +4,16 @@ import Form from './Form';
 
 function App() {
 	return (
-		<>
-			<h1>Jellyfish Frontend</h1>
-			<Form />
-		</>
+		<div className="min-h-screen bg-gray-100 py-8">
+			<div className="max-w-4xl mx-auto px-4">
+				<h1 className="text-4xl font-bold text-blue-600 text-center mb-8">
+					Jellyfish Frontend
+				</h1>
+				<div className="bg-white rounded-lg shadow-lg p-6">
+					<Form />
+				</div>
+			</div>
+		</div>
 	);
 }
 
