@@ -25,7 +25,7 @@ function Results({ response, backgroundColor }) {
 							response.status === 'success' &&
 							response.results
 								? response.backgroundColor || backgroundColor
-								: '#f9fafb',
+								: 'white',
 					}}
 				>
 					{response &&

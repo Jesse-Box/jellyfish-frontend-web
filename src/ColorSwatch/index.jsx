@@ -1,5 +1,5 @@
 import React from 'react';
-import ColorSquare from './ColorSquare.jsx';
+import ColorSquare from './colorSquare.jsx';
 
 function ColorSwatch({ originalHex, rgba }) {
 	return (
