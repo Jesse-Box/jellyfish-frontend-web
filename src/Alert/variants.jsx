@@ -22,7 +22,7 @@ export const alertVariants = cva(
 					'bg-yellow-50',
 					'border-yellow-300',
 				],
-				info: ['text-blue-800', 'bg-blue-50', 'border-blue-300'],
+				info: ['text-blue-800', 'bg-blue-50', 'border-blue-3re00'],
 			},
 			size: {
 				sm: ['h-8', 'px-2', 'py-1', 'text-xs'],
