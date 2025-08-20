@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Sentry from '@sentry/react';
-import Form from './Form';
+import Form from './Form/index.jsx';
 
 function App() {
 	return (

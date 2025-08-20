@@ -1,6 +1,6 @@
 import React from 'react';
-import Input from '../Input';
-import Button from '../Button';
+import Input from '../Input/index.jsx';
+import Button from '../Button/index.jsx';
 import './style.css';
 
 function InputGroup({

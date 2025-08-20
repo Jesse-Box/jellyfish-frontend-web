@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import InputGroup from '../InputGroup';
-import Button from '../Button';
-import Section from '../Section';
-import Alert from '../Alert';
+import InputGroup from '../InputGroup/index.jsx';
+import Button from '../Button/index.jsx';
+import Section from '../Section/index.jsx';
+import Alert from '../Alert/index.jsx';
 
 function Form() {
 	const [backgroundColor, setBackgroundColor] = useState('');
