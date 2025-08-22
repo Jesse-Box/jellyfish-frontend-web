@@ -96,9 +96,9 @@ src/
 │   ├── icon.jsx          # ButtonIcon component
 │   ├── variants.jsx      # CVA styling variants
 │   └── props.jsx         # Shared prop definitions
-├── ColorSwatch/          # Color display components
-│   ├── index.jsx         # ColorSwatch container
-│   └── colorSquare.jsx   # Individual color square
+├── SwatchPair/          # Color display components
+│   ├── index.jsx         # SwatchPair container
+│   └── swatch.jsx   # Individual swatch
 ├── EmptyState/           # Empty state component
 ├── Form/                 # Form with validation logic
 ├── Input/                # Input component with variants
