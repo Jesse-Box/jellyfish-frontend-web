@@ -20,7 +20,7 @@ function App() {
 				.map(color => (color.startsWith('#') ? color : `#${color}`));
 
 			const apiResponse = await fetch(
-				'http://127.0.0.1:5000/api/colors/',
+				'https://jellyfish-backend.onrender.com/api/colors/',
 				{
 					method: 'POST',
 					headers: {
