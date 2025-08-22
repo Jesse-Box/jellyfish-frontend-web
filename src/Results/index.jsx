@@ -35,7 +35,7 @@ function Results({ response, backgroundColor }) {
 							{/* Color Grid - Original vs Transparent */}
 							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
 								{response.results.map((result, index) => (
-									<ColorSwatch
+									<SwatchPair
 										key={index}
 										originalHex={result.originalHex}
 										rgba={result.rgba}
