@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ColorSquare({ color, label, value }) {
+function Swatch({ color, label, value }) {
 	return (
 		<div
 			className="w-full h-16 lg:h-20 relative flex items-end justify-start"
@@ -16,4 +16,4 @@ function ColorSquare({ color, label, value }) {
 	);
 }
 
-export default ColorSquare;
+export default Swatch;

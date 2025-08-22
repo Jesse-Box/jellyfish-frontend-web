@@ -1,7 +1,7 @@
 import React from 'react';
-import ColorSquare from './colorSquare.jsx';
+import Swatch from './swatch.jsx';
 
-function ColorSwatch({ originalHex, rgba }) {
+function SwatchPair({ originalHex, rgba }) {
 	return (
 		<div className="flex flex-col">
 			{/* Paired Swatches - No gap between original and transparent */}
@@ -17,4 +17,4 @@ function ColorSwatch({ originalHex, rgba }) {
 	);
 }
 
-export default ColorSwatch;
+export default SwatchPair;

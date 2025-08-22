@@ -1,7 +1,7 @@
 import React from 'react';
 import Section from '../Section/index.jsx';
 import Alert from '../Alert/index.jsx';
-import ColorSwatch from '../ColorSwatch/index.jsx';
+import SwatchPair from '../SwatchPair/index.jsx';
 import EmptyState from '../EmptyState/index.jsx';
 
 function Results({ response, backgroundColor }) {
