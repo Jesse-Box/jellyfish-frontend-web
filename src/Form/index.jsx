@@ -9,19 +9,6 @@ function Form({ onSubmit }) {
 	const [errors, setErrors] = useState({ background: '', foreground: [] });
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	// Validate hex color format
-	const isValidHexColor = value => {
-		// Allow 3 or 6 digit hex colors with or without #
-		const hexRegex = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-		return hexRegex.test(value);
-	};
-
-	// Normalize hex value (ensure it has # prefix)
-	const normalizeHexValue = value => {
-		const cleanValue = value.trim();
-		return cleanValue.startsWith('#') ? cleanValue : `#${cleanValue}`;
-	};
-
 	const handleBackgroundChange = e => {
 		const value = e.target.value;
 		setBackgroundColor(value);
@@ -73,9 +60,7 @@ function Form({ onSubmit }) {
 
 		// Validate background color
 		if (!backgroundColor.trim()) {
-			newErrors.background = 'Please enter a valid hex color!';
-		} else if (!isValidHexColor(backgroundColor)) {
-			newErrors.background = 'Please enter a valid hex color!';
+			newErrors.background = 'Please enter a color value!';
 		}
 
 		// Validate foreground colors
@@ -84,9 +69,7 @@ function Form({ onSubmit }) {
 
 		foregroundColors.forEach((color, index) => {
 			if (!color.trim()) {
-				foregroundErrors[index] = 'Please enter a valid hex color!';
-			} else if (!isValidHexColor(color)) {
-				foregroundErrors[index] = 'Please enter a valid hex color!';
+				foregroundErrors[index] = 'Please enter a color value!';
 			} else {
 				foregroundErrors[index] = '';
 				hasValidForeground = true;
@@ -94,9 +77,8 @@ function Form({ onSubmit }) {
 		});
 
 		if (!hasValidForeground) {
-			// If no valid foreground colors, mark first one as required
 			if (foregroundErrors.length === 0 || !foregroundErrors[0]) {
-				foregroundErrors[0] = 'Please enter a valid hex color!';
+				foregroundErrors[0] = 'Please enter a color value!';
 			}
 		}
 
@@ -114,14 +96,9 @@ function Form({ onSubmit }) {
 		setErrors({ background: '', foreground: [] });
 
 		try {
-			const normalizedBackground = normalizeHexValue(backgroundColor);
-			const normalizedForegroundColors = foregroundColors
-				.filter(color => color.trim())
-				.map(color => normalizeHexValue(color));
-
 			const result = await onSubmit({
-				backgroundColor: normalizedBackground,
-				foregroundColors: normalizedForegroundColors,
+				backgroundColor: backgroundColor.trim(),
+				foregroundColors: foregroundColors.filter(color => color.trim()),
 			});
 
 			if (!result.success) {
@@ -152,7 +129,7 @@ function Form({ onSubmit }) {
 					value={backgroundColor}
 					onChange={handleBackgroundChange}
 					hasError={!!errors.background}
-					placeholder="e.g., #FFFFFF or ffffff"
+					placeholder="e.g., #FFFFFF, rgb(255,255,255)"
 				/>
 			</Section>
 
@@ -174,7 +151,7 @@ function Form({ onSubmit }) {
 						value={color}
 						onChange={e => handleForegroundChange(index, e)}
 						hasError={!!errors.foreground[index]}
-						placeholder="e.g., #000000 or 000000"
+						placeholder="e.g., #000000, rgb(0,0,0)"
 						showRemoveButton={foregroundColors.length > 1}
 						onRemove={() => removeForegroundColor(index)}
 					/>
