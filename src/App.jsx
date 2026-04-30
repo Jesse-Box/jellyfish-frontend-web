@@ -9,15 +9,20 @@ function App() {
 
 	const handleFormSubmit = async formData => {
 		try {
-			const normalizedBackground = formData.backgroundColor.startsWith(
-				'#'
-			)
-				? formData.backgroundColor
-				: `#${formData.backgroundColor}`;
+			const normalizeColor = color => {
+				if (/^(rgb|hsl|hwb|oklch|lch|lab)\(/i.test(color)) {
+					return color;
+				}
+				return color.startsWith('#') ? color : `#${color}`;
+			};
+
+			const normalizedBackground = normalizeColor(
+				formData.backgroundColor
+			);
 
 			const normalizedForegroundColors = formData.foregroundColors
 				.filter(color => color.trim())
-				.map(color => (color.startsWith('#') ? color : `#${color}`));
+				.map(normalizeColor);
 
 			const apiResponse = await fetch(
 				'https://jellyfish-backend.onrender.com/api/colors/',

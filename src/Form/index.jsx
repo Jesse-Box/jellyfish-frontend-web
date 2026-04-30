@@ -3,6 +3,13 @@ import InputGroup from '../InputGroup/index.jsx';
 import { Button } from '../Button/index.jsx';
 import Section from '../Section/index.jsx';
 
+const COLOR_FORMAT_RE =
+	/^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|(rgb|hsl|hwb|oklch|lch|lab)\(.+\))$/i;
+
+function isValidColorFormat(value) {
+	return COLOR_FORMAT_RE.test(value.trim());
+}
+
 function Form({ onSubmit }) {
 	const [backgroundColor, setBackgroundColor] = useState('');
 	const [foregroundColors, setForegroundColors] = useState(['']);
@@ -61,6 +68,9 @@ function Form({ onSubmit }) {
 		// Validate background color
 		if (!backgroundColor.trim()) {
 			newErrors.background = 'Please enter a color value!';
+		} else if (!isValidColorFormat(backgroundColor)) {
+			newErrors.background =
+				'Please enter a supported format: #RGB, #RRGGBB, rgb(), hsl(), hwb(), oklch(), lch(), or lab()';
 		}
 
 		// Validate foreground colors
@@ -70,6 +80,9 @@ function Form({ onSubmit }) {
 		foregroundColors.forEach((color, index) => {
 			if (!color.trim()) {
 				foregroundErrors[index] = 'Please enter a color value!';
+			} else if (!isValidColorFormat(color)) {
+				foregroundErrors[index] =
+					'Please enter a supported format: #RGB, #RRGGBB, rgb(), hsl(), hwb(), oklch(), lch(), or lab()';
 			} else {
 				foregroundErrors[index] = '';
 				hasValidForeground = true;
