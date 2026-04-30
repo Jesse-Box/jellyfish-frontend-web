@@ -47,6 +47,7 @@ function App() {
 			return { success: true };
 		} catch (error) {
 			console.error('Submit error:', error);
+			Sentry.captureException(error);
 			return {
 				success: false,
 				error: `Failed to send colors to backend: ${error.message}`,
