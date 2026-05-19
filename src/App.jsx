@@ -1,11 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Sentry from '@sentry/react';
 import Form from './Form/index.jsx';
 import Results from './Results/index.jsx';
 
+const BACKEND_URL = 'https://jellyfish-backend.onrender.com';
+
 function App() {
 	const [response, setResponse] = useState(null);
 	const [backgroundColor, setBackgroundColor] = useState('');
+	const [isWarmingUp, setIsWarmingUp] = useState(true);
+
+	// Ping the backend on mount to trigger Render cold-start early,
+	// before the user submits the form.
+	useEffect(() => {
+		fetch(`${BACKEND_URL}/`)
+			.catch(() => {
+				// Ignore ping errors — we just want to wake the service up.
+			})
+			.finally(() => {
+				setIsWarmingUp(false);
+			});
+	}, []);
 
 	const handleFormSubmit = async formData => {
 		try {
@@ -24,22 +39,32 @@ function App() {
 				.filter(color => color.trim())
 				.map(normalizeColor);
 
-			const apiResponse = await fetch(
-				'https://jellyfish-backend.onrender.com/api/colors/',
-				{
+			const requestBody = JSON.stringify({
+				backgroundColor: normalizedBackground,
+				foregroundColor:
+					normalizedForegroundColors.length === 1
+						? normalizedForegroundColors[0]
+						: normalizedForegroundColors,
+			});
+
+			const doFetch = () =>
+				fetch(`${BACKEND_URL}/api/colors/`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify({
-						backgroundColor: normalizedBackground,
-						foregroundColor:
-							normalizedForegroundColors.length === 1
-								? normalizedForegroundColors[0]
-								: normalizedForegroundColors,
-					}),
-				}
-			);
+					body: requestBody,
+				});
+
+			let apiResponse;
+			try {
+				apiResponse = await doFetch();
+			} catch (networkError) {
+				// NetworkError likely means the backend is still cold-starting.
+				// Wait 3 s and retry once before surfacing the error.
+				await new Promise(resolve => setTimeout(resolve, 3000));
+				apiResponse = await doFetch();
+			}
 
 			if (!apiResponse.ok) {
 				throw new Error(`HTTP error! status: ${apiResponse.status}`);
@@ -69,10 +94,16 @@ function App() {
 				</span>
 			</header>
 
+			{isWarmingUp && (
+				<div className="px-6 py-2 bg-yellow-50 border-b border-yellow-200 text-sm text-yellow-700">
+					Connecting to server…
+				</div>
+			)}
+
 			<div className="flex flex-col lg:flex-row lg:h-screen gap-4 p-6">
 				{/* Form Sidebar */}
 				<div className="lg:w-80 lg:flex-shrink-0">
-					<Form onSubmit={handleFormSubmit} />
+					<Form onSubmit={handleFormSubmit} isDisabled={isWarmingUp} />
 				</div>
 
 				{/* Results Panel */}

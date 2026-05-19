@@ -10,7 +10,7 @@ function isValidColorFormat(value) {
 	return COLOR_FORMAT_RE.test(value.trim());
 }
 
-function Form({ onSubmit }) {
+function Form({ onSubmit, isDisabled = false }) {
 	const [backgroundColor, setBackgroundColor] = useState('');
 	const [foregroundColors, setForegroundColors] = useState(['']);
 	const [errors, setErrors] = useState({ background: '', foreground: [] });
@@ -173,8 +173,12 @@ function Form({ onSubmit }) {
 
 			{/* Submit Button */}
 			<div className="flex">
-				<Button type="submit" disabled={isSubmitting} fullWidth>
-					{isSubmitting ? 'Sending...' : 'Create Transparent Colors'}
+				<Button type="submit" disabled={isSubmitting || isDisabled} fullWidth>
+					{isDisabled
+						? 'Connecting to server\u2026'
+						: isSubmitting
+						? 'Sending...'
+						: 'Create Transparent Colors'}
 				</Button>
 			</div>
 		</form>
